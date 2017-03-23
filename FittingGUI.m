@@ -2014,8 +2014,8 @@ if license('checkout Curve_Fitting_Toolbox')
     DRT_GUI.Korrigiert.spaps.Zreal = fnval(DRT_GUI.Korrigiert.spaps.sp_real,log10(DRT_GUI.Korrigiert.spaps.frequenz));
     DRT_GUI.Korrigiert.spaps.Zimg = fnval(DRT_GUI.Korrigiert.spaps.sp_img,log10(DRT_GUI.Korrigiert.spaps.frequenz));
 else
-    FittingGUI.Korrigiert.spaps.Zreal = spline(log10(f_sorted),Zreal_sorted,log10(FittingGUI.Korrigiert.spaps.frequenz));
-    FittingGUI.Korrigiert.spaps.Zimg = spline(log10(f_sorted),Zimg_sorted,log10(FittingGUI.Korrigiert.spaps.frequenz));
+    DRT_GUI.Korrigiert.spaps.Zreal = spline(log10(f_sorted),Zreal_sorted,log10(DRT_GUI.Korrigiert.spaps.frequenz));
+    DRT_GUI.Korrigiert.spaps.Zimg = spline(log10(f_sorted),Zimg_sorted,log10(DRT_GUI.Korrigiert.spaps.frequenz));
 end
 % neu plot
 Typ = 'Korrigiert_Fit';
