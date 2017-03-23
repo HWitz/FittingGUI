@@ -2008,7 +2008,7 @@ DRT_GUI.Korrigiert.spaps.frequenz = 10.^(log10(f_sorted(1)):min_delta_f:log10(f_
 DRT_GUI.Korrigiert.spaps.omega = 2*pi*DRT_GUI.Korrigiert.spaps.frequenz ;
 DRT_GUI.Korrigiert.spaps.tau = 1./ DRT_GUI.Korrigiert.spaps.omega;
 
-if license('checkout Curve_Fitting_Toolbox')
+if license('checkout', 'Curve_Fitting_Toolbox')
     DRT_GUI.Korrigiert.spaps.sp_real = spaps(log10(f_sorted),Zreal_sorted,1e-11,[100 ones(1,numel(f_sorted)-2) 100]',3);
     DRT_GUI.Korrigiert.spaps.sp_img = spaps(log10(f_sorted),Zimg_sorted,1e-11,[100 ones(1,numel(f_sorted)-2) 100]',3);
     DRT_GUI.Korrigiert.spaps.Zreal = fnval(DRT_GUI.Korrigiert.spaps.sp_real,log10(DRT_GUI.Korrigiert.spaps.frequenz));
