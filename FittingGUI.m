@@ -338,6 +338,16 @@ for i = 1:numel(files)
         if ~isempty(find(strcmp(fieldnames(DRT_GUI.Messdaten),'U1'), 1))
             DRT_GUI.Messdaten.U1 = messung.diga.daten.U1(index)';
         end
+    elseif sum(ismember(fieldnames(messung),'data')) && sum(ismember(fieldnames(messung.data),'values')) && sum(ismember(fieldnames(messung.data),'header'))
+        f_index = find(strcmp(messung.data.header,'f [Hz]'));
+        Zreal_index = find(strcmp(messung.data.header,'Zreal [Ohm]'));
+        Zimag_index = find(strcmp(messung.data.header,'-Zimag [Ohm]'));
+
+        DRT_GUI.Messdaten.frequenz = messung.data.values(:,f_index);
+        DRT_GUI.Messdaten.omega = 2*pi*messung.data.values(:,f_index);
+        DRT_GUI.Messdaten.tau = 1./DRT_GUI.Messdaten.omega;
+        DRT_GUI.Messdaten.Zreal =messung.data.values(:,Zreal_index);
+        DRT_GUI.Messdaten.Zimg = messung.data.values(:,Zimag_index);        
     elseif sum(ismember(fieldnames(messung),'eis'))
         if size(messung.eis.batdef.daten,1)>1
             BatNumber = listdlg('PromptString','Select a Battery:','SelectionMode','single','ListString',messung.eis.batdef.daten(:,1));
