@@ -640,7 +640,7 @@ for i = 1:numel(Fit)
                 Fit(i).P_lookup(T_i,:,P_i) = interp1(Fit(i).SOC_mess(SOC_index),Fit(i).P_fit(T_index,SOC_index,P_i),Fit(i).SOC_lookup,'linear','extrap');
                 if SplineInterpolation
                     if license('checkout', 'Curve_Fitting_Toolbox')
-                        Fit(i).P_lookup(T_i,:,P_i) = spap(Fit(i).SOC_lookup, Fit(i).P_lookup(T_i,:,P_i), 1e-11);
+                        [~, Fit(i).P_lookup(T_i,:,P_i)] = spaps(Fit(i).SOC_lookup, Fit(i).P_lookup(T_i,:,P_i), 1e-11);
                     else
                         %% TODO
                         % keep it linear until then
@@ -673,6 +673,7 @@ function export_Lookups_button_Callback(hObject, eventdata, handles)
 % hObject    handle to export_lookups_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+export_FrameworkParameterSet_button_Callback(hObject, eventdata, handles)
 global ModelDaten
 Batterien = get(handles.BatterieNamePopup,'string');
 Zustaende = get(handles.ZustandPopup,'string');
@@ -715,7 +716,22 @@ if get(handles.BatterieNamePopup,'Value') == 1 || get(handles.ZustandPopup,'Valu
 if isempty(ModelDaten) || ~sum(ismember(fieldnames(ModelDaten),'Model')) || isempty(ModelDaten.Model), return, end
 SOC = -5:0.01:105;
 Fit=CreateExport(SOC, 1);
-
+Modellnamenliste = get(handles.ModellnamePopup,'string');
+Modellname = Modellnamenliste(get(handles.ModellnamePopup,'Value'));
+if strcmp( Modellname, 'LiIon4')
+    xml = sprintf(CreateLilon4(Fit));
+    try
+        x = fopen('framework.xml', 'w');
+        fwrite(x , xml)
+        fclose(x);
+    catch
+        fclose(x);
+    end
+        
+    
+else
+    error('Unknow Model');
+end
 
 
 
