@@ -697,7 +697,7 @@ function fig1_export_button_Callback(hObject, eventdata, handles)
 axes(handles.axes1);
 [a,b,c,legende] = legend; 
 legendPosition = get(a,'Location');
-x_label =  get(get(gca,'xlabel'),'string');
+x_label =  'State of charge in %';
 y_label =  get(get(gca,'ylabel'),'string');
 xlimits = xlim;
 ylimits = ylim;
@@ -715,15 +715,21 @@ function fig2_export_button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 axes(handles.axes2);
-[a,b,c,legende] = legend; 
+[a,b,c,legende] = legend;
 legendPosition = get(a,'Location');
-x_label =  get(get(gca,'xlabel'),'string');
+
 y_label =  get(get(gca,'ylabel'),'string');
 xlimits = xlim;
 ylimits = ylim;
 figure;
 copyobj(get(handles.axes2,'Children'),gca)
 grid on;
+if get(handles.ArrheniusCheckbox,'value')
+    x_label =  ' 1/T in 1/K';
+    set(gca, 'YScale','log');
+else
+    x_label =  'Temperature in °C' ;
+end
 xlabel(x_label);ylabel(y_label);
 legend(legende,'Location',legendPosition);
 axes(handles.axes2);
