@@ -591,25 +591,17 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in export_lookups_button.
-function export_Lookups_button_Callback(hObject, eventdata, handles)
-% hObject    handle to export_lookups_button (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+%% This function is used to create a Fit struct that contains all Fitting results
+function Fit = CreateExport(SOC, SplineInterpolation)
 global ModelDaten
-Batterien = get(handles.BatterieNamePopup,'string');
-Zustaende = get(handles.ZustandPopup,'string');
-if get(handles.BatterieNamePopup,'Value') == 1 || get(handles.ZustandPopup,'Value') == 1, return; end
-if isempty(ModelDaten) || ~sum(ismember(fieldnames(ModelDaten),'Model')) || isempty(ModelDaten.Model), return, end
-SOC = -5:5:105;
 Fit={};
 
 
 for i = find(~cellfun(@isempty,ModelDaten.Model(:)))'
     [T_i,SOC_i] = ind2sub(size(ModelDaten.Model),i);
     
-    if ~isempty(ModelDaten.Model{i}.Fit) && sum(ismember(fieldnames(ModelDaten.Model{i}),'Fit')) && sum(ismember(fieldnames(ModelDaten.Model{i}.Fit),'gueltig')) && ModelDaten.Model{i}.Fit.gueltig  
-        if isempty(Fit) || ~sum(ismember(Fit(:,1),ModelDaten.Model{i}.Fit.Modell.Modellname)) 
+    if ~isempty(ModelDaten.Model{i}.Fit) && sum(ismember(fieldnames(ModelDaten.Model{i}),'Fit')) && sum(ismember(fieldnames(ModelDaten.Model{i}.Fit),'gueltig')) && ModelDaten.Model{i}.Fit.gueltig
+        if isempty(Fit) || ~sum(ismember(Fit(:,1),ModelDaten.Model{i}.Fit.Modell.Modellname))
             Fit = [Fit ; ModelDaten.Model{i}.Fit.Modell.ModellCell {ModelDaten.Model{i}.Fit.Modell.P_Name(1,:)} {ModelDaten.T} {reshape(ModelDaten.SOC,[1 numel(ModelDaten.SOC)])} {nan(numel(ModelDaten.T), numel(ModelDaten.SOC), numel(ModelDaten.Model{i}.Fit.Parameter))} {ModelDaten.T} {SOC} {nan(numel(ModelDaten.T), numel(SOC), numel(ModelDaten.Model{i}.Fit.Parameter))}];
             if iscell(Fit{size(Fit,1),4}), Fit{size(Fit,1),4}=cell2mat(Fit{size(Fit,1),4});end
             if iscell(Fit{size(Fit,1),5}), Fit{size(Fit,1),5}=cell2mat(Fit{size(Fit,1),5});end
@@ -631,7 +623,7 @@ for i = find(~cellfun(@isempty,ModelDaten.Model(:)))'
         end
         
     end
-       
+    
 end
 Fit = cell2struct(Fit,{'name','formel','P_name_string','P_init','P_min','P_max','P_fix','P_namen','T_mess','SOC_mess','P_fit','T_lookup','SOC_lookup','P_lookup'},2);
 for i = 1:numel(Fit)
@@ -646,6 +638,14 @@ for i = 1:numel(Fit)
             SOC_index = find(~isnan(Fit(i).P_fit(T_index,:,P_i)));
             if ~isempty(SOC_index)
                 Fit(i).P_lookup(T_i,:,P_i) = interp1(Fit(i).SOC_mess(SOC_index),Fit(i).P_fit(T_index,SOC_index,P_i),Fit(i).SOC_lookup,'linear','extrap');
+                if SplineInterpolation
+                    if license('checkout', 'Curve_Fitting_Toolbox')
+                        Fit(i).P_lookup(T_i,:,P_i) = spap(Fit(i).SOC_lookup, Fit(i).P_lookup(T_i,:,P_i), 1e-11);
+                    else
+                        %% TODO
+                        % keep it linear until then
+                    end
+                end
                 Fit(i).P_lookup(T_i,Fit(i).P_lookup(T_i,:,P_i)<Fit(i).P_min(P_i),P_i) = Fit(i).P_min(P_i);
                 Fit(i).P_lookup(T_i,Fit(i).P_lookup(T_i,:,P_i)>Fit(i).P_max(P_i),P_i) = Fit(i).P_max(P_i);
             end
@@ -667,12 +667,26 @@ for i = 1:numel(Fit)
     end
 end
 
+
+% --- Executes on button press in export_lookups_button.
+function export_Lookups_button_Callback(hObject, eventdata, handles)
+% hObject    handle to export_lookups_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global ModelDaten
+Batterien = get(handles.BatterieNamePopup,'string');
+Zustaende = get(handles.ZustandPopup,'string');
+if get(handles.BatterieNamePopup,'Value') == 1 || get(handles.ZustandPopup,'Value') == 1, return; end
+if isempty(ModelDaten) || ~sum(ismember(fieldnames(ModelDaten),'Model')) || isempty(ModelDaten.Model), return, end
+SOC = -5:5:105;
+
+Fit=CreateExport(SOC, 0);
+
 filename = ['output/' Batterien{get(handles.BatterieNamePopup,'Value')} '/'  Zustaende{get(handles.ZustandPopup,'Value')} '/'  Batterien{get(handles.BatterieNamePopup,'Value')} '_' Zustaende{get(handles.ZustandPopup,'Value')} ];
 save( [filename '_modelexport.mat'],'Fit');
 if ~isempty(dir([filename '_modelexport.xls']))
     delete([filename '_modelexport.xls']);
 end
-
 
 xlsCell = {};
 maxCols=max(arrayfun(@(x) size(x.SOC_lookup,2),Fit))+1;
@@ -686,8 +700,24 @@ for i = 1:numel(Fit)
         xlsCell = [xlsCell ; num2cell(Fit(i).T_lookup) num2cell(Fit(i).P_lookup(:,:,j)) cell(numel(Fit(i).T_lookup),maxCols-1-numel(Fit(i).SOC_lookup))];
     end
 end
-xlswrite([filename '_modelexport.xls'],xlsCell,'Fit')    
+xlswrite([filename '_modelexport.xls'],xlsCell,'Fit')
 display(sprintf('In Datei %s geschrieben',[filename '_modelexport.xls']));
+
+
+function export_FrameworkParameterSet_button_Callback(hObject, eventdata, handles)
+% hObject    handle to export_lookups_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global ModelDaten
+Batterien = get(handles.BatterieNamePopup,'string');
+Zustaende = get(handles.ZustandPopup,'string');
+if get(handles.BatterieNamePopup,'Value') == 1 || get(handles.ZustandPopup,'Value') == 1, return; end
+if isempty(ModelDaten) || ~sum(ismember(fieldnames(ModelDaten),'Model')) || isempty(ModelDaten.Model), return, end
+SOC = -5:0.01:105;
+Fit=CreateExport(SOC, 1);
+
+
+
 
 % --- Executes on button press in fig1_export_button.
 function fig1_export_button_Callback(hObject, eventdata, handles)
