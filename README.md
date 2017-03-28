@@ -1,6 +1,19 @@
 # FittingGUI
 GUI for Fitting Models to measured Impedance Spectra with focus on Lithium Ion Batteries
 
+This graphical interface for Matlab has been used at ISEA for 
+the evaluation of impedance spectra and time domain characterization measurements for many years. 
+It includes a comprehensive model database, which allows you to easily integrate 
+your own impedance model structures. For the individual elements, both formulations 
+in the frequency domain for the impedance fitting as well as implementations in the 
+time domain are stored. The latter are required for the fitting of the time 
+domain large signal behavior. The unique feature of this tool is the possibility 
+to parameterize a physical Newman model separately for the anode and the cathode. 
+Separation takes place using the DRT (distribution of relaxation times). 
+The individual model elements, the physical model, the time domain implementations 
+and the procedure for the DRT process fitting are described in detail in the dissertation
+of Heiko Witzenhausen.
+
 Overview
 ==========
 A brief overview of how the FittingGUI looks like is presented below
