@@ -374,6 +374,26 @@ for i = 1:numel(files)
         else
             index = 1:numel(messung.diga.daten.ActFreq);
         end
+        [k,l] = regexp(filename,'EIS\d\d\d\d\d');
+        if ~isempty(k)
+            eisnumber = str2double(filename(k+3:l));
+        else
+            eisnumber=0;
+        end
+        ind2 = find(diff(messung.diga.daten.ActFreq(index))>0);
+        if ~isempty(ind2)
+            ind2 = [1 ind2+1 numel(index)+1];
+            if eisnumber>0 && eisnumber < numel(ind2)
+                index = index(ind2(eisnumber):(ind2(eisnumber+1)-1));
+            else
+                eisnumber = inputdlg(['Which spectrum should be imported? ( 1 to '  num2str(numel(ind2)-1) ' )'],'number of spectrum',1,{'1'});
+                if isempty(eisnumber), return , end
+                eisnumber = str2num(cell2mat(eisnumber));
+                index = index(ind2(eisnumber):(ind2(eisnumber+1)-1));
+
+            end
+            
+        end
         DRT_GUI.Messdaten.frequenz = messung.diga.daten.ActFreq(index)';
         DRT_GUI.Messdaten.omega = 2*pi*messung.diga.daten.ActFreq(index)';
         DRT_GUI.Messdaten.tau = 1./DRT_GUI.Messdaten.omega;
@@ -487,9 +507,10 @@ for i = 1:numel(files)
         Temperaturfound = 1;
     end
     if SOCfound == 0
-        [k,l] = regexp(filename,'EIS\d\d\d\d\d');
-        eisnumber = str2double(filename(k+3:l));
-        
+        if ~exist('eisnumber')
+            [k,l] = regexp(filename,'EIS\d\d\d\d\d');
+            eisnumber = str2double(filename(k+3:l));
+        end
         masterfound = 0;
         master_file = dir([pathname '*' DStringOrig '*.mat']);
         for Master_i = 1:numel(Pattern.MasterProgram)
