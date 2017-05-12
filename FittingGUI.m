@@ -230,6 +230,43 @@ for i = 1:numel(files)
         messung.eis = geteis10(strcat(pathname,filename));
     elseif strcmp(filename(end-3:end),'.mat')
         messung=load(strcat(pathname,filename));
+        elseif strcmp(filename(end-3:end),'.mpt')
+        fid = fopen(strcat(pathname,filename),'r');
+        delimiter= '\t';
+        startRow = 58;
+        endRow = 141;
+        formatSpec = '%f%f%f%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%*s%f%f%*s%*s%f%f%*s%*s%*s%*s%[^\n\r]';
+        
+        textscan(fid, '%[^\n\r]', startRow(1)-1, 'ReturnOnError', false);
+        dataArray = textscan(fid, formatSpec, endRow(1)-startRow(1)+1, 'Delimiter', delimiter, 'ReturnOnError', false);
+        for block=2:length(startRow)
+            frewind(fid);
+            textscan(fid, '%[^\n\r]', startRow(block)-1, 'ReturnOnError', false);
+            dataArrayBlock = textscan(fid, formatSpec, endRow(block)-startRow(block)+1, 'Delimiter', delimiter, 'ReturnOnError', false);
+            for col=1:length(dataArray)
+                dataArray{col} = [dataArray{col};dataArrayBlock{col}];
+            end
+        end
+        fclose(fid);
+        Daten=[dataArray{1:end-1}];
+        list={'Zelle', 'Kathode', 'Anode'}; %Auswahlliste
+        [Selection,~]=listdlg('ListString',list,'ListSize',[160,90],'PromptString','Welches Spektrum?','SelectionMode','single');
+        if Selection == 1
+            messung.diga.daten.ActFreq = Daten(:,1).';
+            messung.diga.daten.Zreal1 = Daten(:,6).';
+            messung.diga.daten.Zimg1 = -Daten(:,7).';
+            Impedanzart = 'Zelle';
+        elseif Selection ==2
+            messung.diga.daten.ActFreq = Daten(:,1).';
+            messung.diga.daten.Zreal1 = Daten(:,2).';
+            messung.diga.daten.Zimg1 = -Daten(:,3).';
+            Impedanzart = 'Kathode';
+        elseif Selection ==3
+            messung.diga.daten.ActFreq = Daten(:,1).';
+            messung.diga.daten.Zreal1 = Daten(:,4).';
+            messung.diga.daten.Zimg1 = -Daten(:,5).';
+            Impedanzart = 'Anode';
+        end
     end
     
     
@@ -305,9 +342,16 @@ for i = 1:numel(files)
         end
     end
     if ~Zustandfound
-        Zustand = 'default';
-        set(handles.ZustandTextBox,'String',Zustand);
-        ZustandTextBox_Callback(handles.ZustandTextBox);
+        if strcmp(filename(end-3:end),'.mpt');
+            Zustandfound= 1;
+            Zustand = Impedanzart;
+            set(handles.ZustandTextBox,'String',Zustand);
+            ZustandTextBox_Callback(handles.ZustandTextBox);
+        else
+            Zustand = 'default';
+            set(handles.ZustandTextBox,'String',Zustand);
+            ZustandTextBox_Callback(handles.ZustandTextBox);
+        end
     end
     
     SOCfound = 0;
@@ -329,6 +373,26 @@ for i = 1:numel(files)
             index = find(messung.diga.daten.ActFreq>0 & [1 diff(messung.diga.daten.ActFreq)~=0]);
         else
             index = 1:numel(messung.diga.daten.ActFreq);
+        end
+        [k,l] = regexp(filename,'EIS\d\d\d\d\d');
+        if ~isempty(k)
+            eisnumber = str2double(filename(k+3:l));
+        else
+            eisnumber=0;
+        end
+        ind2 = find(diff(messung.diga.daten.ActFreq(index))>0);
+        if ~isempty(ind2)
+            ind2 = [1 ind2+1 numel(index)+1];
+            if eisnumber>0 && eisnumber < numel(ind2)
+                index = index(ind2(eisnumber):(ind2(eisnumber+1)-1));
+            else
+                eisnumber = inputdlg(['Which spectrum should be imported? ( 1 to '  num2str(numel(ind2)-1) ' )'],'number of spectrum',1,{'1'});
+                if isempty(eisnumber), return , end
+                eisnumber = str2num(cell2mat(eisnumber));
+                index = index(ind2(eisnumber):(ind2(eisnumber+1)-1));
+
+            end
+            
         end
         DRT_GUI.Messdaten.frequenz = messung.diga.daten.ActFreq(index)';
         DRT_GUI.Messdaten.omega = 2*pi*messung.diga.daten.ActFreq(index)';
@@ -443,9 +507,10 @@ for i = 1:numel(files)
         Temperaturfound = 1;
     end
     if SOCfound == 0
-        [k,l] = regexp(filename,'EIS\d\d\d\d\d');
-        eisnumber = str2double(filename(k+3:l));
-        
+        if ~exist('eisnumber')
+            [k,l] = regexp(filename,'EIS\d\d\d\d\d');
+            eisnumber = str2double(filename(k+3:l));
+        end
         masterfound = 0;
         master_file = dir([pathname '*' DStringOrig '*.mat']);
         for Master_i = 1:numel(Pattern.MasterProgram)
