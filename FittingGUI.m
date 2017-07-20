@@ -46,7 +46,7 @@ function varargout = FittingGUI(varargin)
 
 % Edit the above text to modify the response to hHFCelp FittingGUI
 
-% Last Modified by GUIDE v2.5 26-Feb-2017 11:15:14
+% Last Modified by GUIDE v2.5 20-Jul-2017 11:34:26
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -7799,3 +7799,33 @@ grid on;
 axes(handles.axes1);
 % legend(legende,'Location',legendPosition);
 axes(new_ax);
+
+
+% --------------------------------------------------------------------
+function menAlleOCVFittingsZuruecksetzen_Callback(hObject, eventdata, handles)
+% hObject    handle to menAlleOCVFittingsZuruecksetzen (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global DRT_GUI;
+
+
+
+SOCs = get(handles.SOCPopup ,'String');
+
+for i_SOC = 2:numel(SOCs)
+
+    if isempty(SOCs{i_SOC}) || ~isempty(strfind(SOCs{i_SOC},'gray'))
+        continue
+    end
+    set(handles.SOCPopup,'Value',i_SOC)
+    SOCPopup_Callback(handles.SOCPopup,eventdata,handles)
+
+    ZeitbereichsFittingButton_Callback(handles.ZeitbereichsFittingButton,eventdata,handles)
+    
+    [~ , ImplementierungHandles] = Implementierung;
+    eventdataneu.info='save';
+Implementierung('ResetOCVFitButton_Callback',ImplementierungHandles.ResetOCVFitButton, eventdataneu, ImplementierungHandles)
+    SpeichernButton_Callback(handles.SpeichernButton,eventdata,handles)
+
+
+end

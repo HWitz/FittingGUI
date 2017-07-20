@@ -86,8 +86,8 @@ Modell.Plot = 0;
 Modell.NewParName= { 'R_D_B' ,'Tau_D_B'};  
 %               (R_D,    Tau_D     )
 Startwerte = {    1e-3      100     };
-Minimum = {       1e-7      10      };
-Maximum = {       1        100      };
+Minimum = {       1e-7      1      };
+Maximum = {       1        1000      };
 Fix = {           0         0        };
 ModellZeile = AddESBElement(ModellZeile,Modell,Appendix,HFMFLF,Startwerte,Minimum,Maximum,Fix);
 

@@ -31,7 +31,7 @@ Pattern.Temperatur={'m\d\d\dgrad','m\d\dgrad','\d\d\dgrad_','\d\dgrad','\d\d\d_g
 Pattern.SOC={'\d\d\dSOC_','\d\dSOC_','m\d\dSOC_','\d\dSOC','\d\d\d__SOC','\d\d\d_SOC','\d\d_SOC','m\d\d__SOC','\d\d__SOC','m\d__SOC','\d__SOC',...
              '\d\d\dSO_','\d\dSO_','m\d\dSO_','\d\dSO','\d\d\d__SO','\d\d\d_SO','\d\d_SO','m\d\d__SO','\d\d__SO','m\d__SO','\d__SO'};
 Pattern.Zustand={'CU\d\d\d','CU\d\d','CU\d','CU_\d\d\d','CU_\d\d','CU_\d','init','Init','Zyk_\d\d\d','Zyk_\d\d','Zyk_\d','Zyklen_\d\d\d\d','Zyklen_\d\d\d','Zyklen_\d\d','Zyklen_\d','Continuous','=\d\d_psa'};
-Pattern.Batterie={'iMiEV_50Ah_\d\d\d','MiEV_50Ah_\d\d\d','Samsung_i3_\d\d\d'};
+Pattern.Batterie={'iMiEV_50Ah_\d\d\d','MiEV_50Ah_\d\d\d','Samsung_i3_\d\d\d','eSmart_Litec_\d\d\d\d_\d'};
 
 
 global Modellliste
