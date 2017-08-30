@@ -10,7 +10,7 @@ end
 function LookupCache = CreateLookup(Fit)
 LookupCache = '';
 for i =  1:length(Fit.P_namen)
-    LookupCache  = [LookupCache, '\n', CreateXMLNode( Fit.P_namen{i}, squeeze( Fit.T_lookup), squeeze( Fit.SOC_lookup), squeeze( Fit.P_lookup(:, i,:))) ];
+    LookupCache  = [LookupCache, '\n', CreateXMLNode( Fit.P_namen{i}, squeeze( Fit.T_lookup), squeeze( Fit.SOC_lookup), squeeze( Fit.P_lookup(:, :,i))) ];
 end
 end
 
