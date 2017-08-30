@@ -1796,7 +1796,9 @@ end
 ImplementierungsTable_CellEditCallback(handles.ImplementierungsTable,eventdata,handles)
 handles = guidata(hObject);
 PlotOCVButton_Callback(handles.PlotOCVButton, [], handles)
-
+if ~isempty(eventdata) && ismember('info',fieldnames(eventdata)) && ischar(eventdata.info) && strcmp(eventdata.info,'save')
+    SpeichernButton_Callback(handles.SpeichernButton, eventdata, handles)
+end
 
 % --- Executes on button press in stromloseMesspunkteCheckbox.
 function stromloseMesspunkteCheckbox_Callback(hObject, eventdata, handles)
