@@ -679,8 +679,7 @@ Batterien = get(handles.BatterieNamePopup,'string');
 Zustaende = get(handles.ZustandPopup,'string');
 if get(handles.BatterieNamePopup,'Value') == 1 || get(handles.ZustandPopup,'Value') == 1, return; end
 if isempty(ModelDaten) || ~sum(ismember(fieldnames(ModelDaten),'Model')) || isempty(ModelDaten.Model), return, end
-SOC = -5:5:105;
-
+SOC = [-5; ModelDaten.SOC; 105]';
 Fit=CreateExport(SOC, 0);
 
 filename = ['output/' Batterien{get(handles.BatterieNamePopup,'Value')} '/'  Zustaende{get(handles.ZustandPopup,'Value')} '/'  Batterien{get(handles.BatterieNamePopup,'Value')} '_' Zustaende{get(handles.ZustandPopup,'Value')} ];
@@ -714,8 +713,9 @@ Batterien = get(handles.BatterieNamePopup,'string');
 Zustaende = get(handles.ZustandPopup,'string');
 if get(handles.BatterieNamePopup,'Value') == 1 || get(handles.ZustandPopup,'Value') == 1, return; end
 if isempty(ModelDaten) || ~sum(ismember(fieldnames(ModelDaten),'Model')) || isempty(ModelDaten.Model), return, end
-SOC = -5:0.01:105;
-Fit=CreateExport(SOC, 1);
+SOC = [-5; ModelDaten.SOC; 105]';
+doSpline = get(handles.spline_check,'value');
+Fit=CreateExport(SOC, doSpline );
 Modellnamenliste = get(handles.ModellnamePopup,'string');
 Modellname = Modellnamenliste(get(handles.ModellnamePopup,'Value'));
 if strcmp( Modellname, 'LiIon4')
