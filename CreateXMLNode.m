@@ -89,4 +89,4 @@ lookup = [ ...
 function val = MakeReadableNumber(values)
     val = mat2str(values);
     val = strrep( val(2:end-1), ' ' , ','); % erase []
-    val = strrep( val(2:end-1), ';' , ';\n'); % erase []
+    val = strrep( val, ';' , ';\n'); % erase []
