@@ -709,6 +709,7 @@ function export_FrameworkParameterSet_button_Callback(hObject, eventdata, handle
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global ModelDaten
+global DRT_GUI
 Batterien = get(handles.BatterieNamePopup,'string');
 Zustaende = get(handles.ZustandPopup,'string');
 if get(handles.BatterieNamePopup,'Value') == 1 || get(handles.ZustandPopup,'Value') == 1, return; end
@@ -718,10 +719,16 @@ doSpline = get(handles.spline_check,'value');
 Fit=CreateExport(SOC, doSpline );
 Modellnamenliste = get(handles.ModellnamePopup,'string');
 Modellname = Modellnamenliste(get(handles.ModellnamePopup,'Value'));
+filename = ['output/' Batterien{get(handles.BatterieNamePopup,'Value')}  ];
+if sum(strcmp(fieldnames(DRT_GUI.Testparameter), 'Cap')) == 1
+    cap = num2str(DRT_GUI.Testparameter.Cap);
+else
+    cap = '0';
+end
 if strcmp( Modellname, 'LiIon4')
-    xml = sprintf(CreateLilon4(Fit));
+    xml = sprintf(CreateLiIon4(Fit, cap));
     try
-        x = fopen('framework.xml', 'w');
+        x = fopen([filename '.xml'], 'w');
         fwrite(x , xml)
         fclose(x);
     catch
