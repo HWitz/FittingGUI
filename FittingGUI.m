@@ -383,7 +383,6 @@ for i = 1:numel(files)
         end
         ind2 = find(diff(messung.diga.daten.ActFreq(index))>0);
         if sum(ismember('messung.diga.daten','Cap'))
-            index = ind2;
             Kapazitaet = num2str(messung.diga.daten.Cap);
             set(handles.KapTextBox,'String',Kapazitaet)
             KapTextBox_Callback(handles.KapTextBox)
