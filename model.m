@@ -725,7 +725,7 @@ if sum(strcmp(fieldnames(DRT_GUI.Testparameter), 'Cap')) == 1
 else
     cap = '0';
 end
-if strcmp( Modellname, 'LiIon4')
+if ~isempty(strfind( Modellname, 'LiIon4') )
     xml = sprintf(CreateLiIon4(Fit, cap));
     try
         x = fopen([filename '.xml'], 'w');
@@ -734,8 +734,6 @@ if strcmp( Modellname, 'LiIon4')
     catch
         fclose(x);
     end
-        
-    
 else
     error('Unknow Model');
 end
