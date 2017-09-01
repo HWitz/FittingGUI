@@ -148,7 +148,8 @@ function EinleseButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global DRT_GUI;
-global Pattern
+global Pattern;
+global DRT_Config;
 DC_Current = 0 ;
 Index100percent = -1;
 alter_pfad = pwd;
@@ -381,7 +382,15 @@ for i = 1:numel(files)
             eisnumber=0;
         end
         ind2 = find(diff(messung.diga.daten.ActFreq(index))>0);
-        if ~isempty(ind2)
+        if sum(ismember('messung.diga.daten','Cap'))
+            index = ind2;
+            Kapazitaet = num2str(messung.diga.daten.Cap);
+            set(handles.KapTextBox,'String',Kapazitaet)
+            KapTextBox_Callback(handles.KapTextBox)
+            SOCfound = 1;
+            set(handles.SOCTextBox,'String', 100 + (messung.diga.daten.EntEla/ messung.diga.daten.Cap)*100);
+            SOCTextBox_Callback(handles.SOCTextBox);
+        elseif ~isempty(ind2)
             ind2 = [1 ind2+1 numel(index)+1];
             if eisnumber>0 && eisnumber < numel(ind2)
                 index = index(ind2(eisnumber):(ind2(eisnumber+1)-1));
@@ -865,7 +874,9 @@ for i = 1:numel(files)
     PunkteWegnehmenButton_Callback(handles.PunkteWegnehmenButton, eventdata, handles)
     % HFcorrectionButton_Callback(handles.InitHF_FittButton,eventdata,handles)
     
-    PasteButton_Callback(handles.PasteButton,eventdata,handles)
+    if DRT_Config.AutoPaste == 1
+        PasteButton_Callback(handles.PasteButton,eventdata,handles)
+    end
     set(handles.GueltigeMessungCheck,'value',1)
     GueltigeMessungCheck_Callback(handles.GueltigeMessungCheck, eventdata,handles)
     FitButton_Callback(handles.FitButton, eventdata,handles)
